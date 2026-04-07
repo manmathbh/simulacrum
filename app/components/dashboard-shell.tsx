@@ -393,6 +393,29 @@ export function DashboardShell({
     metricAverages.grammar = Math.round(totals.grammar / totalInterviews);
   }
 
+  const latestSession = pastSessions[0] ?? null;
+  const latestMetricScores = {
+    confidence:
+      latestSession?.finalSnapshot.metrics.find((m) => m.key === "confidence")
+        ?.score ?? 0,
+    clarity:
+      latestSession?.finalSnapshot.metrics.find((m) => m.key === "clarity")
+        ?.score ?? 0,
+    tone:
+      latestSession?.finalSnapshot.metrics.find((m) => m.key === "tone")
+        ?.score ?? 0,
+    grammar:
+      latestSession?.finalSnapshot.metrics.find((m) => m.key === "grammar")
+        ?.score ?? 0,
+  };
+
+  const metricTrends = {
+    confidence: latestMetricScores.confidence - metricAverages.confidence,
+    clarity: latestMetricScores.clarity - metricAverages.clarity,
+    tone: latestMetricScores.tone - metricAverages.tone,
+    grammar: latestMetricScores.grammar - metricAverages.grammar,
+  };
+
   return (
     <div className="relative flex flex-1 flex-col">
       <div className="absolute top-4 right-6 z-10">
@@ -583,15 +606,22 @@ export function DashboardShell({
                     {
                       label: "Confidence",
                       score: metricAverages.confidence,
+                      trend: metricTrends.confidence,
                     },
                     {
                       label: "Clarity",
                       score: metricAverages.clarity,
+                      trend: metricTrends.clarity,
                     },
-                    { label: "Tone", score: metricAverages.tone },
+                    {
+                      label: "Tone",
+                      score: metricAverages.tone,
+                      trend: metricTrends.tone,
+                    },
                     {
                       label: "Grammar",
                       score: metricAverages.grammar,
+                      trend: metricTrends.grammar,
                     },
                   ].map((metric) => (
                     <div key={metric.label}>
@@ -599,9 +629,28 @@ export function DashboardShell({
                         <span className="text-slate-700 dark:text-slate-300">
                           {metric.label}
                         </span>
-                        <span className="text-slate-600 dark:text-slate-400">
-                          {metric.score}/100
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-slate-600 dark:text-slate-400">
+                            {metric.score}/100
+                          </span>
+                          {totalInterviews > 0 ? (
+                            <span
+                              className={`text-xs font-medium ${
+                                metric.trend > 0
+                                  ? "text-emerald-600 dark:text-emerald-400"
+                                  : metric.trend < 0
+                                    ? "text-rose-600 dark:text-rose-400"
+                                    : "text-slate-500 dark:text-slate-400"
+                              }`}
+                            >
+                              {metric.trend > 0
+                                ? `↑ +${metric.trend}`
+                                : metric.trend < 0
+                                  ? `↓ ${metric.trend}`
+                                  : "→ 0"}
+                            </span>
+                          ) : null}
+                        </div>
                       </div>
 
                       <div className="h-2.5 w-full rounded-full bg-slate-200/70 dark:bg-slate-800">
