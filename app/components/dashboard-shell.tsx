@@ -86,6 +86,8 @@ export function DashboardShell({
   const [atsError, setAtsError] = useState<string | null>(null);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [pastSessions, setPastSessions] = useState<PastSession[]>([]);
+  const [selectedTranscript, setSelectedTranscript] =
+    useState<PastSession | null>(null);
 
   const markSessionSaved = () => {
     if (typeof window === "undefined") {
@@ -481,7 +483,7 @@ export function DashboardShell({
                   </p>
                   <button
                     type="button"
-                    onClick={() => console.log(session.messages)}
+                    onClick={() => setSelectedTranscript(session)}
                     className="mt-4 rounded-lg border border-cyan-500/25 px-3 py-1.5 text-xs font-medium text-cyan-700 transition hover:bg-cyan-50 dark:text-cyan-300 dark:hover:bg-slate-800"
                   >
                     View Transcript
@@ -501,6 +503,54 @@ export function DashboardShell({
             </h3>
           </div>
         </section>
+      )}
+
+      {selectedTranscript && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="flex max-h-[80vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900">
+            <header className="flex items-center justify-between border-b border-cyan-500/20 px-4 py-3">
+              <div>
+                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  {selectedTranscript.resumeName ?? "Interview Session"}
+                </p>
+                <p className="text-xs text-slate-600 dark:text-slate-400">
+                  Composite Score: {selectedTranscript.finalSnapshot.compositeScore}
+                  /100
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedTranscript(null)}
+                className="rounded-md border border-cyan-500/25 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-cyan-50 dark:text-slate-200 dark:hover:bg-slate-800"
+              >
+                Close
+              </button>
+            </header>
+
+            <div className="space-y-4 overflow-y-auto p-4">
+              {selectedTranscript.messages.map((message) => (
+                <article
+                  key={message.id}
+                  className={`max-w-[90%] rounded-xl px-4 py-3 text-sm ${
+                    message.role === "user"
+                      ? "ml-auto border border-cyan-600/35 bg-cyan-500/10 text-cyan-900 dark:border-cyan-300/40 dark:text-cyan-100"
+                      : "border border-slate-300 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+                  }`}
+                >
+                  <p className="mb-1 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    {message.role === "user"
+                      ? "You"
+                      : message.role === "assistant"
+                        ? "AI Interviewer"
+                        : "System"}
+                  </p>
+                  <p className="whitespace-pre-wrap">{message.content}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
