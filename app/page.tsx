@@ -1,12 +1,20 @@
+"use client";
+
+import { useState } from "react";
+
 import { DashboardShell } from "./components/dashboard-shell";
 import { Sidebar } from "./components/sidebar";
 import { mockChatMessages } from "./lib/mock-dashboard-data";
 
 export default function Home() {
+  const [activeView, setActiveView] = useState<
+    "interview" | "past-sessions" | "analytics"
+  >("interview");
+
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <div className="mx-auto grid min-h-screen max-w-[1800px] grid-cols-1 lg:grid-cols-[18rem_1fr]">
-        <Sidebar />
+        <Sidebar activeView={activeView} setActiveView={setActiveView} />
         <main className="flex min-h-screen flex-col border-t border-cyan-500/20 lg:border-t-0 lg:border-l">
           <header className="border-b border-cyan-400/20 px-6 py-5 sm:px-8">
             <h1 className="text-xl font-semibold tracking-tight text-cyan-700 dark:text-cyan-300 sm:text-2xl">
@@ -17,7 +25,10 @@ export default function Home() {
             </p>
           </header>
 
-          <DashboardShell initialMessages={mockChatMessages} />
+          <DashboardShell
+            initialMessages={mockChatMessages}
+            activeView={activeView}
+          />
         </main>
       </div>
     </div>

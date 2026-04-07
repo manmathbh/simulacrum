@@ -4,16 +4,22 @@ import Image from "next/image";
 import { useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 
-const links = [
-  "New Scenario",
-  "Past Sessions",
-  "Progress Analytics",
+type ViewId = "interview" | "past-sessions" | "analytics";
+
+const links: Array<{ id: ViewId; label: string }> = [
+  { id: "interview", label: "New Scenario" },
+  { id: "past-sessions", label: "Past Sessions" },
+  { id: "analytics", label: "Progress Analytics" },
 ];
 
-export function Sidebar() {
+type SidebarProps = {
+  activeView: ViewId;
+  setActiveView: (view: ViewId) => void;
+};
+
+export function Sidebar({ activeView, setActiveView }: SidebarProps) {
   const { data: session, status } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [activeLink, setActiveLink] = useState("New Scenario");
 
   return (
     <aside className="flex h-full flex-col border-b border-cyan-500/20 bg-white/90 px-5 py-6 dark:bg-slate-950/95 lg:border-r lg:border-b-0 lg:px-6 lg:py-8">
@@ -44,23 +50,23 @@ export function Sidebar() {
       >
         {links.map((link) => (
           <button
-            key={link}
+            key={link.id}
             type="button"
             className={`group flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left transition ${
-              activeLink === link
+              activeView === link.id
                 ? "border-cyan-600/50 bg-cyan-500/10 dark:border-cyan-300/60"
                 : "border-cyan-500/20 bg-white/80 hover:border-cyan-600/40 hover:bg-cyan-50/60 dark:border-cyan-400/20 dark:bg-slate-900/80 dark:hover:border-cyan-300/40 dark:hover:bg-slate-900"
             }`}
-            onClick={() => setActiveLink(link)}
+            onClick={() => setActiveView(link.id)}
           >
             <span
               className={`text-sm font-medium ${
-                activeLink === link
+                activeView === link.id
                   ? "text-cyan-700 dark:text-cyan-200"
                   : "text-slate-700 group-hover:text-cyan-700 dark:text-slate-200 dark:group-hover:text-cyan-200"
               }`}
             >
-              {link}
+              {link.label}
             </span>
             <span className="text-cyan-600/80 dark:text-cyan-400/80">+</span>
           </button>

@@ -30,6 +30,7 @@ const STORAGE_KEYS = {
   resumeFileName: "simulacrum.resumeFileName",
   resumeText: "simulacrum.resumeText",
   lastSavedAt: "simulacrum.lastSavedAt",
+  history: "simulacrum.history",
 } as const;
 
 function getAtsScoreBand(score: number) {
@@ -58,10 +59,20 @@ function getAtsScoreBand(score: number) {
 
 type DashboardShellProps = {
   initialMessages: ChatMessage[];
+  activeView: "interview" | "past-sessions" | "analytics";
+};
+
+type PastSession = {
+  id: string;
+  timestamp: string;
+  resumeName: string | null;
+  finalSnapshot: FeedbackSnapshot;
+  messages: ChatMessage[];
 };
 
 export function DashboardShell({
   initialMessages,
+  activeView,
 }: DashboardShellProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [snapshot, setSnapshot] = useState<FeedbackSnapshot>(pendingSnapshot);
@@ -74,6 +85,7 @@ export function DashboardShell({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [atsError, setAtsError] = useState<string | null>(null);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
+  const [pastSessions, setPastSessions] = useState<PastSession[]>([]);
 
   const markSessionSaved = () => {
     if (typeof window === "undefined") {
@@ -98,6 +110,7 @@ export function DashboardShell({
       );
       const savedResumeText = window.localStorage.getItem(STORAGE_KEYS.resumeText);
       const savedLastSavedAt = window.localStorage.getItem(STORAGE_KEYS.lastSavedAt);
+      const savedHistory = window.localStorage.getItem(STORAGE_KEYS.history);
 
       if (savedMessages) {
         setMessages(JSON.parse(savedMessages) as ChatMessage[]);
@@ -118,10 +131,22 @@ export function DashboardShell({
       if (savedLastSavedAt) {
         setLastSavedAt(savedLastSavedAt);
       }
+
+      if (savedHistory) {
+        setPastSessions(JSON.parse(savedHistory) as PastSession[]);
+      }
     } catch (error) {
       console.error("Failed to hydrate dashboard session:", error);
     }
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(pastSessions));
+  }, [pastSessions]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -295,7 +320,19 @@ export function DashboardShell({
     }
   };
 
-  const clearSession = () => {
+  const endAndSaveSession = () => {
+    if (messages.length > 0) {
+      const finishedSession: PastSession = {
+        id: `session-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        resumeName,
+        finalSnapshot: snapshot,
+        messages,
+      };
+
+      setPastSessions((prev) => [finishedSession, ...prev]);
+    }
+
     if (typeof window !== "undefined") {
       window.localStorage.removeItem(STORAGE_KEYS.messages);
       window.localStorage.removeItem(STORAGE_KEYS.atsData);
@@ -325,90 +362,146 @@ export function DashboardShell({
           ) : null}
           <button
             type="button"
-            onClick={clearSession}
+            onClick={endAndSaveSession}
             className="text-xs font-medium text-slate-600 underline decoration-dotted underline-offset-4 transition hover:text-cyan-700 dark:text-slate-300 dark:hover:text-cyan-300"
           >
-            Clear Session
+            End & Save Session
           </button>
           <ThemeToggle />
         </div>
       </div>
 
-      <div className="border-b border-cyan-500/20 px-6 py-4 sm:px-8">
-        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-          Upload Resume (PDF)
-        </label>
-        <div className="mt-2 flex flex-wrap items-center gap-3">
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={handleResumeUpload}
-            className="block w-full max-w-md text-sm text-slate-700 file:mr-4 file:rounded-md file:border file:border-cyan-500/30 file:bg-cyan-500/10 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-cyan-800 hover:file:bg-cyan-500/20 dark:text-slate-300 dark:file:border-cyan-400/30 dark:file:text-cyan-200"
-          />
-          <p className="text-xs text-slate-600 dark:text-slate-400">
-            {isUploadingResume
-              ? "Parsing resume..."
-              : resumeUploadError
-                ? resumeUploadError
-                : resumeName
-                  ? `Uploaded: ${resumeName}`
-                : "No resume uploaded yet."}
-          </p>
-        </div>
-
-        <div className="mt-3 rounded-lg border border-cyan-500/20 bg-white/60 p-3 dark:bg-slate-900/50">
-          {isAnalyzing ? (
-            <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
-              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-cyan-500/60 border-t-transparent" />
-              <span>Analyzing resume with AI...</span>
+      {activeView === "interview" && (
+        <>
+          <div className="border-b border-cyan-500/20 px-6 py-4 sm:px-8">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+              Upload Resume (PDF)
+            </label>
+            <div className="mt-2 flex flex-wrap items-center gap-3">
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={handleResumeUpload}
+                className="block w-full max-w-md text-sm text-slate-700 file:mr-4 file:rounded-md file:border file:border-cyan-500/30 file:bg-cyan-500/10 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-cyan-800 hover:file:bg-cyan-500/20 dark:text-slate-300 dark:file:border-cyan-400/30 dark:file:text-cyan-200"
+              />
+              <p className="text-xs text-slate-600 dark:text-slate-400">
+                {isUploadingResume
+                  ? "Parsing resume..."
+                  : resumeUploadError
+                    ? resumeUploadError
+                    : resumeName
+                      ? `Uploaded: ${resumeName}`
+                      : "No resume uploaded yet."}
+              </p>
             </div>
-          ) : atsError ? (
-            <p className="text-xs text-rose-700 dark:text-rose-300">{atsError}</p>
-          ) : atsData ? (
-            <div className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-semibold text-cyan-700 dark:text-cyan-300">
-                  ATS Score: {atsData.score}/100
+
+            <div className="mt-3 rounded-lg border border-cyan-500/20 bg-white/60 p-3 dark:bg-slate-900/50">
+              {isAnalyzing ? (
+                <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-cyan-500/60 border-t-transparent" />
+                  <span>Analyzing resume with AI...</span>
+                </div>
+              ) : atsError ? (
+                <p className="text-xs text-rose-700 dark:text-rose-300">{atsError}</p>
+              ) : atsData ? (
+                <div className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-cyan-700 dark:text-cyan-300">
+                      ATS Score: {atsData.score}/100
+                    </p>
+                    <span
+                      className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${getAtsScoreBand(atsData.score).className}`}
+                    >
+                      {getAtsScoreBand(atsData.score).label}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-semibold">Strengths</p>
+                    <ul className="list-disc pl-4">
+                      {atsData.strengths.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="font-semibold">Weaknesses</p>
+                    <ul className="list-disc pl-4">
+                      {atsData.weaknesses.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-slate-600 dark:text-slate-400">
+                  ATS analysis will appear here after a resume is uploaded.
                 </p>
-                <span
-                  className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${getAtsScoreBand(atsData.score).className}`}
-                >
-                  {getAtsScoreBand(atsData.score).label}
-                </span>
-              </div>
-              <div>
-                <p className="font-semibold">Strengths</p>
-                <ul className="list-disc pl-4">
-                  {atsData.strengths.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <p className="font-semibold">Weaknesses</p>
-                <ul className="list-disc pl-4">
-                  {atsData.weaknesses.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
+              )}
+            </div>
+          </div>
+
+          <section className="grid flex-1 grid-cols-1 divide-y divide-cyan-400/15 xl:grid-cols-2 xl:divide-x xl:divide-y-0">
+            <ChatInterfacePanel
+              messages={messages}
+              isSending={isSending}
+              onSendMessage={sendMessage}
+            />
+            <FeedbackPanel snapshot={snapshot} />
+          </section>
+        </>
+      )}
+
+      {activeView === "past-sessions" && (
+        <section className="flex flex-1 flex-col px-6 py-10 sm:px-8">
+          <h3 className="text-2xl font-semibold text-cyan-700 dark:text-cyan-300">
+            Interview History
+          </h3>
+
+          {pastSessions.length === 0 ? (
+            <div className="mt-6 rounded-2xl border border-cyan-500/20 bg-white/70 p-8 text-center dark:bg-slate-900/70">
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                No past sessions yet. Start a new scenario!
+              </p>
             </div>
           ) : (
-            <p className="text-xs text-slate-600 dark:text-slate-400">
-              ATS analysis will appear here after a resume is uploaded.
-            </p>
+            <div className="mt-6 grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
+              {pastSessions.map((session) => (
+                <article
+                  key={session.id}
+                  className="rounded-2xl border border-cyan-500/20 bg-white/80 p-5 shadow-sm dark:bg-slate-900/70"
+                >
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {new Date(session.timestamp).toLocaleString()}
+                  </p>
+                  <p className="mt-2 text-sm font-medium text-slate-800 dark:text-slate-200">
+                    Resume: {session.resumeName ?? "No resume uploaded"}
+                  </p>
+                  <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
+                    Final Composite Score: {session.finalSnapshot.compositeScore}/100
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => console.log(session.messages)}
+                    className="mt-4 rounded-lg border border-cyan-500/25 px-3 py-1.5 text-xs font-medium text-cyan-700 transition hover:bg-cyan-50 dark:text-cyan-300 dark:hover:bg-slate-800"
+                  >
+                    View Transcript
+                  </button>
+                </article>
+              ))}
+            </div>
           )}
-        </div>
-      </div>
+        </section>
+      )}
 
-      <section className="grid flex-1 grid-cols-1 divide-y divide-cyan-400/15 xl:grid-cols-2 xl:divide-x xl:divide-y-0">
-        <ChatInterfacePanel
-          messages={messages}
-          isSending={isSending}
-          onSendMessage={sendMessage}
-        />
-        <FeedbackPanel snapshot={snapshot} />
-      </section>
+      {activeView === "analytics" && (
+        <section className="flex flex-1 items-center justify-center px-6 py-10 sm:px-8">
+          <div className="w-full max-w-2xl rounded-2xl border border-cyan-500/20 bg-white/70 p-10 text-center dark:bg-slate-900/70">
+            <h3 className="text-xl font-semibold text-cyan-700 dark:text-cyan-300">
+              Coming Soon: Detailed Progress Tracking
+            </h3>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
