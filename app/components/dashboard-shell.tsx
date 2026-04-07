@@ -353,6 +353,46 @@ export function DashboardShell({
     setLastSavedAt(null);
   };
 
+  const totalInterviews = pastSessions.length;
+
+  const averageScore =
+    totalInterviews > 0
+      ? Math.round(
+          pastSessions.reduce(
+            (sum, session) => sum + session.finalSnapshot.compositeScore,
+            0,
+          ) / totalInterviews,
+        )
+      : 0;
+
+  const metricAverages = {
+    confidence: 0,
+    clarity: 0,
+    tone: 0,
+    grammar: 0,
+  };
+
+  if (totalInterviews > 0) {
+    const totals = pastSessions.reduce(
+      (acc, session) => {
+        for (const metric of session.finalSnapshot.metrics) {
+          if (metric.key === "confidence") acc.confidence += metric.score;
+          if (metric.key === "clarity") acc.clarity += metric.score;
+          if (metric.key === "tone") acc.tone += metric.score;
+          if (metric.key === "grammar") acc.grammar += metric.score;
+        }
+
+        return acc;
+      },
+      { confidence: 0, clarity: 0, tone: 0, grammar: 0 },
+    );
+
+    metricAverages.confidence = Math.round(totals.confidence / totalInterviews);
+    metricAverages.clarity = Math.round(totals.clarity / totalInterviews);
+    metricAverages.tone = Math.round(totals.tone / totalInterviews);
+    metricAverages.grammar = Math.round(totals.grammar / totalInterviews);
+  }
+
   return (
     <div className="relative flex flex-1 flex-col">
       <div className="absolute top-4 right-6 z-10">
@@ -496,12 +536,86 @@ export function DashboardShell({
       )}
 
       {activeView === "analytics" && (
-        <section className="flex flex-1 items-center justify-center px-6 py-10 sm:px-8">
-          <div className="w-full max-w-2xl rounded-2xl border border-cyan-500/20 bg-white/70 p-10 text-center dark:bg-slate-900/70">
-            <h3 className="text-xl font-semibold text-cyan-700 dark:text-cyan-300">
-              Coming Soon: Detailed Progress Tracking
-            </h3>
-          </div>
+        <section className="flex flex-1 flex-col px-6 py-10 sm:px-8">
+          <h3 className="text-2xl font-semibold text-cyan-700 dark:text-cyan-300">
+            Progress Analytics
+          </h3>
+
+          {totalInterviews === 0 ? (
+            <div className="mt-6 rounded-2xl border border-cyan-500/20 bg-white/70 p-8 text-center dark:bg-slate-900/70">
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                No analytics yet. Complete your first interview to unlock
+                progress insights.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="mt-6 grid gap-4 md:grid-cols-2">
+                <article className="rounded-2xl border border-cyan-500/20 bg-white/80 p-6 shadow-sm dark:bg-slate-900/70">
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    Total Mock Interviews
+                  </p>
+                  <p className="mt-2 text-4xl font-semibold text-cyan-700 dark:text-cyan-300">
+                    {totalInterviews}
+                  </p>
+                </article>
+
+                <article className="rounded-2xl border border-cyan-500/20 bg-white/80 p-6 shadow-sm dark:bg-slate-900/70">
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    Average ATS Score
+                  </p>
+                  <p className="mt-2 text-4xl font-semibold text-cyan-700 dark:text-cyan-300">
+                    {averageScore}
+                    <span className="ml-1 text-base text-slate-500 dark:text-slate-400">
+                      /100
+                    </span>
+                  </p>
+                </article>
+              </div>
+
+              <article className="mt-6 rounded-2xl border border-cyan-500/20 bg-white/80 p-6 shadow-sm dark:bg-slate-900/70">
+                <h4 className="text-lg font-semibold text-cyan-700 dark:text-cyan-300">
+                  Average Skill Breakdown
+                </h4>
+
+                <div className="mt-5 space-y-4">
+                  {[
+                    {
+                      label: "Confidence",
+                      score: metricAverages.confidence,
+                    },
+                    {
+                      label: "Clarity",
+                      score: metricAverages.clarity,
+                    },
+                    { label: "Tone", score: metricAverages.tone },
+                    {
+                      label: "Grammar",
+                      score: metricAverages.grammar,
+                    },
+                  ].map((metric) => (
+                    <div key={metric.label}>
+                      <div className="mb-1 flex items-center justify-between text-sm">
+                        <span className="text-slate-700 dark:text-slate-300">
+                          {metric.label}
+                        </span>
+                        <span className="text-slate-600 dark:text-slate-400">
+                          {metric.score}/100
+                        </span>
+                      </div>
+
+                      <div className="h-2.5 w-full rounded-full bg-slate-200/70 dark:bg-slate-800">
+                        <div
+                          className="h-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500"
+                          style={{ width: `${metric.score}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </article>
+            </>
+          )}
         </section>
       )}
 
