@@ -37,23 +37,20 @@ function getAtsScoreBand(score: number) {
   if (score >= 80) {
     return {
       label: "Strong",
-      className:
-        "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+      className: "border-emerald-400/40 bg-emerald-500/15 text-emerald-200",
     };
   }
 
   if (score >= 60) {
     return {
       label: "Needs Polish",
-      className:
-        "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+      className: "border-amber-400/40 bg-amber-500/15 text-amber-200",
     };
   }
 
   return {
     label: "Needs Work",
-    className:
-      "border-rose-500/30 bg-rose-500/10 text-rose-700 dark:text-rose-300",
+    className: "border-rose-400/40 bg-rose-500/15 text-rose-200",
   };
 }
 
@@ -416,19 +413,38 @@ export function DashboardShell({
     grammar: latestMetricScores.grammar - metricAverages.grammar,
   };
 
+  const quickActions = [
+    {
+      title: "Start Mock Interview",
+      subtitle: "Jump into a new scenario with live AI coaching.",
+    },
+    {
+      title: "Upload Resume",
+      subtitle: "Personalize questions with resume-aware prompts.",
+    },
+    {
+      title: "Review Sessions",
+      subtitle: "Open transcripts and reflect on outcomes.",
+    },
+    {
+      title: "Track Analytics",
+      subtitle: "Measure confidence, clarity, tone, and grammar trends.",
+    },
+  ];
+
   return (
-    <div className="relative flex flex-1 flex-col">
+    <div className="relative flex min-h-screen flex-1 flex-col bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 text-white">
       <div className="absolute top-4 right-6 z-10">
         <div className="flex items-center gap-3">
           {lastSavedAt ? (
-            <span className="text-[11px] text-slate-500 dark:text-slate-400">
+            <span className="text-[11px] text-slate-300">
               Last saved: {new Date(lastSavedAt).toLocaleTimeString()}
             </span>
           ) : null}
           <button
             type="button"
             onClick={endAndSaveSession}
-            className="text-xs font-medium text-slate-600 underline decoration-dotted underline-offset-4 transition hover:text-cyan-700 dark:text-slate-300 dark:hover:text-cyan-300"
+            className="rounded-lg border border-white/20 bg-white/5 px-3 py-1.5 text-xs font-medium text-white transition-all hover:bg-white/10"
           >
             End & Save Session
           </button>
@@ -436,10 +452,32 @@ export function DashboardShell({
         </div>
       </div>
 
+      <section className="px-6 pt-16 pb-6 sm:px-8">
+        <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+          Stop Guessing. Start Practicing.
+        </h2>
+        <p className="mt-2 text-sm text-indigo-200">
+          Build interview confidence with scenario-based practice, ATS feedback,
+          and real-time coaching.
+        </p>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {quickActions.map((action) => (
+            <article
+              key={action.title}
+              className="rounded-2xl border border-white/10 bg-white/5 p-4 shadow-xl backdrop-blur-lg"
+            >
+              <p className="text-sm font-semibold text-white">{action.title}</p>
+              <p className="mt-1 text-xs text-slate-300">{action.subtitle}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       {activeView === "interview" && (
         <>
-          <div className="border-b border-cyan-500/20 px-6 py-4 sm:px-8">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+          <div className="mx-6 rounded-2xl border border-white/10 bg-white/5 px-6 py-5 shadow-xl backdrop-blur-lg sm:mx-8">
+            <label className="block text-sm font-semibold text-white tracking-tight">
               Upload Resume (PDF)
             </label>
             <div className="mt-2 flex flex-wrap items-center gap-3">
@@ -447,9 +485,9 @@ export function DashboardShell({
                 type="file"
                 accept=".pdf"
                 onChange={handleResumeUpload}
-                className="block w-full max-w-md text-sm text-slate-700 file:mr-4 file:rounded-md file:border file:border-cyan-500/30 file:bg-cyan-500/10 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-cyan-800 hover:file:bg-cyan-500/20 dark:text-slate-300 dark:file:border-cyan-400/30 dark:file:text-cyan-200"
+                className="block w-full max-w-md text-sm text-slate-200 file:mr-4 file:rounded-md file:border file:border-white/20 file:bg-indigo-600 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-indigo-500"
               />
-              <p className="text-xs text-slate-600 dark:text-slate-400">
+              <p className="text-xs text-slate-300">
                 {isUploadingResume
                   ? "Parsing resume..."
                   : resumeUploadError
@@ -460,18 +498,18 @@ export function DashboardShell({
               </p>
             </div>
 
-            <div className="mt-3 rounded-lg border border-cyan-500/20 bg-white/60 p-3 dark:bg-slate-900/50">
+            <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-lg">
               {isAnalyzing ? (
-                <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
-                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-cyan-500/60 border-t-transparent" />
+                <div className="flex items-center gap-2 text-xs text-slate-300">
+                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-indigo-400 border-t-transparent" />
                   <span>Analyzing resume with AI...</span>
                 </div>
               ) : atsError ? (
-                <p className="text-xs text-rose-700 dark:text-rose-300">{atsError}</p>
+                <p className="text-xs text-rose-200">{atsError}</p>
               ) : atsData ? (
-                <div className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
+                <div className="space-y-2 text-xs text-slate-200">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-cyan-700 dark:text-cyan-300">
+                    <p className="text-sm font-semibold text-white">
                       ATS Score: {atsData.score}/100
                     </p>
                     <span
@@ -498,14 +536,14 @@ export function DashboardShell({
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-slate-600 dark:text-slate-400">
+                <p className="text-xs text-slate-300">
                   ATS analysis will appear here after a resume is uploaded.
                 </p>
               )}
             </div>
           </div>
 
-          <section className="grid flex-1 grid-cols-1 divide-y divide-cyan-400/15 xl:grid-cols-2 xl:divide-x xl:divide-y-0">
+          <section className="mt-6 grid flex-1 grid-cols-1 gap-6 px-6 pb-8 sm:px-8 xl:grid-cols-2">
             <ChatInterfacePanel
               messages={messages}
               isSending={isSending}
@@ -518,13 +556,14 @@ export function DashboardShell({
 
       {activeView === "past-sessions" && (
         <section className="flex flex-1 flex-col px-6 py-10 sm:px-8">
-          <h3 className="text-2xl font-semibold text-cyan-700 dark:text-cyan-300">
+          <h3 className="text-2xl font-bold tracking-tight text-white">
             Interview History
           </h3>
+          <p className="mt-1 text-sm text-indigo-200">Revisit every session and replay your transcript.</p>
 
           {pastSessions.length === 0 ? (
-            <div className="mt-6 rounded-2xl border border-cyan-500/20 bg-white/70 p-8 text-center dark:bg-slate-900/70">
-              <p className="text-sm text-slate-600 dark:text-slate-300">
+            <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-8 text-center shadow-xl backdrop-blur-lg">
+              <p className="text-sm text-slate-300">
                 No past sessions yet. Start a new scenario!
               </p>
             </div>
@@ -533,21 +572,21 @@ export function DashboardShell({
               {pastSessions.map((session) => (
                 <article
                   key={session.id}
-                  className="rounded-2xl border border-cyan-500/20 bg-white/80 p-5 shadow-sm dark:bg-slate-900/70"
+                  className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-xl backdrop-blur-lg"
                 >
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-xs text-slate-300">
                     {new Date(session.timestamp).toLocaleString()}
                   </p>
-                  <p className="mt-2 text-sm font-medium text-slate-800 dark:text-slate-200">
+                  <p className="mt-2 text-sm font-medium text-white">
                     Resume: {session.resumeName ?? "No resume uploaded"}
                   </p>
-                  <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
+                  <p className="mt-2 text-sm text-slate-300">
                     Final Composite Score: {session.finalSnapshot.compositeScore}/100
                   </p>
                   <button
                     type="button"
                     onClick={() => setSelectedTranscript(session)}
-                    className="mt-4 rounded-lg border border-cyan-500/25 px-3 py-1.5 text-xs font-medium text-cyan-700 transition hover:bg-cyan-50 dark:text-cyan-300 dark:hover:bg-slate-800"
+                    className="mt-4 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition-all hover:bg-indigo-500"
                   >
                     View Transcript
                   </button>
@@ -560,13 +599,14 @@ export function DashboardShell({
 
       {activeView === "analytics" && (
         <section className="flex flex-1 flex-col px-6 py-10 sm:px-8">
-          <h3 className="text-2xl font-semibold text-cyan-700 dark:text-cyan-300">
+          <h3 className="text-2xl font-bold tracking-tight text-white">
             Progress Analytics
           </h3>
+          <p className="mt-1 text-sm text-indigo-200">Track your growth with data-rich interview insights.</p>
 
           {totalInterviews === 0 ? (
-            <div className="mt-6 rounded-2xl border border-cyan-500/20 bg-white/70 p-8 text-center dark:bg-slate-900/70">
-              <p className="text-sm text-slate-600 dark:text-slate-300">
+            <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-8 text-center shadow-xl backdrop-blur-lg">
+              <p className="text-sm text-slate-300">
                 No analytics yet. Complete your first interview to unlock
                 progress insights.
               </p>
@@ -574,30 +614,30 @@ export function DashboardShell({
           ) : (
             <>
               <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <article className="rounded-2xl border border-cyan-500/20 bg-white/80 p-6 shadow-sm dark:bg-slate-900/70">
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                <article className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-lg">
+                  <p className="text-sm text-slate-300">
                     Total Mock Interviews
                   </p>
-                  <p className="mt-2 text-4xl font-semibold text-cyan-700 dark:text-cyan-300">
+                  <p className="mt-2 text-4xl font-bold text-white tracking-tight">
                     {totalInterviews}
                   </p>
                 </article>
 
-                <article className="rounded-2xl border border-cyan-500/20 bg-white/80 p-6 shadow-sm dark:bg-slate-900/70">
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                <article className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-lg">
+                  <p className="text-sm text-slate-300">
                     Average ATS Score
                   </p>
-                  <p className="mt-2 text-4xl font-semibold text-cyan-700 dark:text-cyan-300">
+                  <p className="mt-2 text-4xl font-bold text-white tracking-tight">
                     {averageScore}
-                    <span className="ml-1 text-base text-slate-500 dark:text-slate-400">
+                    <span className="ml-1 text-base text-slate-300">
                       /100
                     </span>
                   </p>
                 </article>
               </div>
 
-              <article className="mt-6 rounded-2xl border border-cyan-500/20 bg-white/80 p-6 shadow-sm dark:bg-slate-900/70">
-                <h4 className="text-lg font-semibold text-cyan-700 dark:text-cyan-300">
+              <article className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-lg">
+                <h4 className="text-lg font-bold tracking-tight text-white">
                   Average Skill Breakdown
                 </h4>
 
@@ -626,21 +666,21 @@ export function DashboardShell({
                   ].map((metric) => (
                     <div key={metric.label}>
                       <div className="mb-1 flex items-center justify-between text-sm">
-                        <span className="text-slate-700 dark:text-slate-300">
+                        <span className="text-slate-200">
                           {metric.label}
                         </span>
                         <div className="flex items-center gap-2">
-                          <span className="text-slate-600 dark:text-slate-400">
+                          <span className="text-slate-300">
                             {metric.score}/100
                           </span>
                           {totalInterviews > 0 ? (
                             <span
                               className={`text-xs font-medium ${
                                 metric.trend > 0
-                                  ? "text-emerald-600 dark:text-emerald-400"
+                                  ? "text-emerald-300"
                                   : metric.trend < 0
-                                    ? "text-rose-600 dark:text-rose-400"
-                                    : "text-slate-500 dark:text-slate-400"
+                                    ? "text-rose-300"
+                                    : "text-slate-300"
                               }`}
                             >
                               {metric.trend > 0
@@ -653,9 +693,9 @@ export function DashboardShell({
                         </div>
                       </div>
 
-                      <div className="h-2.5 w-full rounded-full bg-slate-200/70 dark:bg-slate-800">
+                      <div className="h-2.5 w-full rounded-full bg-white/10">
                         <div
-                          className="h-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500"
+                          className="h-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-fuchsia-500"
                           style={{ width: `${metric.score}%` }}
                         />
                       </div>
@@ -670,13 +710,13 @@ export function DashboardShell({
 
       {selectedTranscript && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="flex max-h-[80vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900">
-            <header className="flex items-center justify-between border-b border-cyan-500/20 px-4 py-3">
+          <div className="flex max-h-[80vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-950/80 shadow-xl backdrop-blur-lg">
+            <header className="flex items-center justify-between border-b border-white/10 px-4 py-3">
               <div>
-                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                <p className="text-sm font-semibold text-white">
                   {selectedTranscript.resumeName ?? "Interview Session"}
                 </p>
-                <p className="text-xs text-slate-600 dark:text-slate-400">
+                <p className="text-xs text-slate-300">
                   Composite Score: {selectedTranscript.finalSnapshot.compositeScore}
                   /100
                 </p>
@@ -685,7 +725,7 @@ export function DashboardShell({
               <button
                 type="button"
                 onClick={() => setSelectedTranscript(null)}
-                className="rounded-md border border-cyan-500/25 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-cyan-50 dark:text-slate-200 dark:hover:bg-slate-800"
+                className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition-all hover:bg-indigo-500"
               >
                 Close
               </button>
@@ -697,11 +737,11 @@ export function DashboardShell({
                   key={message.id}
                   className={`max-w-[90%] rounded-xl px-4 py-3 text-sm ${
                     message.role === "user"
-                      ? "ml-auto border border-cyan-600/35 bg-cyan-500/10 text-cyan-900 dark:border-cyan-300/40 dark:text-cyan-100"
-                      : "border border-slate-300 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+                      ? "ml-auto border border-indigo-400/40 bg-indigo-500/20 text-indigo-100"
+                      : "border border-white/10 bg-white/5 text-slate-200"
                   }`}
                 >
-                  <p className="mb-1 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  <p className="mb-1 text-xs uppercase tracking-wide text-slate-300">
                     {message.role === "user"
                       ? "You"
                       : message.role === "assistant"
