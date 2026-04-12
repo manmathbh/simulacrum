@@ -78,6 +78,7 @@ export function DashboardShell({
   const [resumeName, setResumeName] = useState<string | null>(null);
   const [isUploadingResume, setIsUploadingResume] = useState(false);
   const [resumeUploadError, setResumeUploadError] = useState<string | null>(null);
+  const [jobDescription, setJobDescription] = useState("");
   const [atsData, setAtsData] = useState<AtsResumeAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [atsError, setAtsError] = useState<string | null>(null);
@@ -291,7 +292,10 @@ export function DashboardShell({
         setAtsError(null);
 
         try {
-          const result = await analyzeResume(parsedResumeText);
+          const result = await analyzeResume(
+            parsedResumeText,
+            jobDescription.trim() || undefined,
+          );
           setAtsData(result);
         } catch (error) {
           console.error("ATS analysis failed:", error);
@@ -498,6 +502,23 @@ export function DashboardShell({
               </p>
             </div>
 
+            <div className="mt-4">
+              <label
+                htmlFor="job-description"
+                className="block text-sm font-semibold tracking-tight text-white"
+              >
+                Target Job Description (Optional)
+              </label>
+              <textarea
+                id="job-description"
+                value={jobDescription}
+                onChange={(event) => setJobDescription(event.target.value)}
+                placeholder="Paste the role description to score JD match and missing skills..."
+                rows={5}
+                className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-400 backdrop-blur-md outline-none transition focus:border-indigo-400/70 focus:ring-2 focus:ring-indigo-500/30"
+              />
+            </div>
+
             <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-lg">
               {isAnalyzing ? (
                 <div className="flex items-center gap-2 text-xs text-slate-300">
@@ -517,6 +538,11 @@ export function DashboardShell({
                     >
                       {getAtsScoreBand(atsData.score).label}
                     </span>
+                    {jobDescription.trim() ? (
+                      <span className="rounded-full border border-indigo-300/40 bg-indigo-500/20 px-2 py-0.5 text-[11px] font-semibold text-indigo-100">
+                        JD Match Mode
+                      </span>
+                    ) : null}
                   </div>
                   <div>
                     <p className="font-semibold">Strengths</p>

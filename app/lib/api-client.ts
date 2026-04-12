@@ -24,13 +24,14 @@ export async function postDashboardTurn(
 
 export async function analyzeResume(
   resumeText: string,
+  jobDescription?: string,
 ): Promise<AtsResumeAnalysis> {
   const response = await fetch("/api/analyze-resume", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ resumeText }),
+    body: JSON.stringify({ resumeText, jobDescription }),
   });
 
   if (!response.ok) {

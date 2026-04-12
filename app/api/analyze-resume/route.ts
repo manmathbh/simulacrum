@@ -36,8 +36,12 @@ function sanitizeAnalysis(input: AtsResumeAnalysis): AtsResumeAnalysis {
 }
 
 export async function POST(request: Request) {
-  const body = (await request.json()) as { resumeText?: string };
+  const body = (await request.json()) as {
+    resumeText?: string;
+    jobDescription?: string;
+  };
   const resumeText = body.resumeText?.trim();
+  const jobDescription = body.jobDescription?.trim();
 
   if (!resumeText) {
     return NextResponse.json(
@@ -62,17 +66,24 @@ export async function POST(request: Request) {
 
   for (const model of openRouterModelCandidates) {
     try {
+      const systemPrompt = jobDescription
+        ? "You are a strict, professional ATS and technical recruiter. Compare the candidate resume against the provided target job description. You MUST score based on keyword and skill overlap, experience relevance, and role-fit alignment. Missing required skills from the job description must be listed in the weaknesses array. You MUST respond with ONLY raw JSON in this exact format: { \"score\": 85, \"strengths\": [\"...\", \"...\"], \"weaknesses\": [\"...\", \"...\"] }. Do not include markdown formatting or any text outside the JSON object."
+        : "You are a strict, professional ATS screening system. You MUST respond with ONLY raw JSON in this exact format: { \"score\": 85, \"strengths\": [\"...\", \"...\"], \"weaknesses\": [\"...\", \"...\"] }. Do not include markdown formatting or any text outside the JSON object.";
+
+      const userPrompt = jobDescription
+        ? `Evaluate this resume specifically against the target job description. Return the same JSON schema only.\n\nTarget Job Description:\n${jobDescription.slice(0, 12000)}\n\nResume:\n${resumeText.slice(0, 20000)}`
+        : `Analyze the following resume for ATS readiness:\n\n${resumeText.slice(0, 20000)}`;
+
       const completion = await openai.chat.completions.create({
         model,
         messages: [
           {
             role: "system",
-            content:
-              "You are a strict, professional ATS screening system. You MUST respond with ONLY raw JSON in this exact format: { \"score\": 85, \"strengths\": [\"...\", \"...\"], \"weaknesses\": [\"...\", \"...\"] }. Do not include markdown formatting or any text outside the JSON object.",
+            content: systemPrompt,
           },
           {
             role: "user",
-            content: `Analyze the following resume for ATS readiness:\n\n${resumeText.slice(0, 20000)}`,
+            content: userPrompt,
           },
         ],
         temperature: 0.2,
