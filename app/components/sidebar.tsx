@@ -4,10 +4,11 @@ import Image from "next/image";
 import { useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 
-type ViewId = "interview" | "past-sessions" | "analytics";
+type ViewId = "interview" | "past-sessions" | "analytics" | "builder";
 
 const links: Array<{ id: ViewId; label: string }> = [
   { id: "interview", label: "New Scenario" },
+  { id: "builder", label: "Resume Builder" },
   { id: "past-sessions", label: "Past Sessions" },
   { id: "analytics", label: "Progress Analytics" },
 ];

@@ -8,7 +8,7 @@ import { mockChatMessages } from "./lib/mock-dashboard-data";
 
 export default function Home() {
   const [activeView, setActiveView] = useState<
-    "interview" | "past-sessions" | "analytics"
+    "interview" | "past-sessions" | "analytics" | "builder"
   >("interview");
 
   return (

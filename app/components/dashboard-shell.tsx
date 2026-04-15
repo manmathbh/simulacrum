@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { ChatInterfacePanel } from "./chat-interface-panel";
 import { FeedbackPanel } from "./feedback-panel";
+import { ResumeBuilder } from "./resume-builder";
 import { ThemeToggle } from "./theme-toggle";
 import {
   AtsResumeAnalysis,
@@ -56,7 +57,7 @@ function getAtsScoreBand(score: number) {
 
 type DashboardShellProps = {
   initialMessages: ChatMessage[];
-  activeView: "interview" | "past-sessions" | "analytics";
+  activeView: "interview" | "past-sessions" | "analytics" | "builder";
 };
 
 type PastSession = {
@@ -733,6 +734,8 @@ export function DashboardShell({
           )}
         </section>
       )}
+
+      {activeView === "builder" && <ResumeBuilder />}
 
       {selectedTranscript && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
