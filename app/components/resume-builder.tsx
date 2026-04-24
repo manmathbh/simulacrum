@@ -79,6 +79,9 @@ export function ResumeBuilder() {
   const [resumeData, setResumeData] = useState<ResumeData>(defaultResumeData);
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [enhanceError, setEnhanceError] = useState<string | null>(null);
+  const [pendingEnhancedData, setPendingEnhancedData] =
+    useState<ResumeData | null>(null);
+  const [isDiffModalOpen, setIsDiffModalOpen] = useState(false);
 
   const updateField = (
     field: keyof Omit<
@@ -239,7 +242,8 @@ export function ResumeBuilder() {
 
     try {
       const enhancedData = await enhanceResumeData(resumeData);
-      setResumeData(enhancedData);
+      setPendingEnhancedData(enhancedData);
+      setIsDiffModalOpen(true);
     } catch (error) {
       console.error("Failed to enhance resume:", error);
       setEnhanceError("Could not enhance resume right now. Please try again.");
@@ -259,15 +263,16 @@ export function ResumeBuilder() {
     .filter(Boolean);
 
   return (
-    <section className="flex-1 px-6 pb-8 sm:px-8">
-      <div className="grid h-full grid-cols-1 gap-8 lg:grid-cols-2">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-lg">
-          <h3 className="text-xl font-bold tracking-tight text-white">Resume Editor</h3>
-          <p className="mt-1 text-sm text-indigo-200">
-            Fill in your details to generate a live resume preview.
-          </p>
+    <>
+      <section className="flex-1 px-6 pb-8 sm:px-8">
+        <div className="grid h-full grid-cols-1 gap-8 lg:grid-cols-2">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-lg">
+            <h3 className="text-xl font-bold tracking-tight text-white">Resume Editor</h3>
+            <p className="mt-1 text-sm text-indigo-200">
+              Fill in your details to generate a live resume preview.
+            </p>
 
-          <div className="mt-6 max-h-screen space-y-5 overflow-y-auto pr-1">
+            <div className="mt-6 max-h-screen space-y-5 overflow-y-auto pr-1">
             <div>
               <label htmlFor="resume-full-name" className="block text-sm font-medium text-slate-200">
                 Full Name
@@ -394,7 +399,7 @@ export function ResumeBuilder() {
               />
             </div>
 
-            <div className="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+              <div className="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-semibold text-white">Education</h4>
                 <button
@@ -457,7 +462,7 @@ export function ResumeBuilder() {
               ))}
             </div>
 
-            <div className="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+              <div className="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-semibold text-white">Experience</h4>
                 <button
@@ -518,7 +523,7 @@ export function ResumeBuilder() {
               ))}
             </div>
 
-            <div className="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+              <div className="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-semibold text-white">Projects</h4>
                 <button
@@ -569,151 +574,260 @@ export function ResumeBuilder() {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-
-        <div className="rounded-2xl bg-slate-300/30 p-5 backdrop-blur-sm">
-          <div className="mb-4 flex items-center justify-end gap-2">
-            <button
-              type="button"
-              onClick={handleEnhanceWithAI}
-              disabled={isEnhancing}
-              className="rounded-lg bg-fuchsia-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-fuchsia-500 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isEnhancing ? "Enhancing..." : "✨ Enhance with AI"}
-            </button>
-            <button
-              type="button"
-              onClick={downloadPDF}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-indigo-500"
-            >
-              Download PDF
-            </button>
+            </div>
           </div>
 
-          {enhanceError ? (
-            <p className="mb-3 text-right text-xs text-rose-200">{enhanceError}</p>
-          ) : null}
+          <div className="rounded-2xl bg-slate-300/30 p-5 backdrop-blur-sm">
+            <div className="mb-4 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleEnhanceWithAI}
+                disabled={isEnhancing}
+                className="rounded-lg bg-fuchsia-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-fuchsia-500 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isEnhancing ? "Enhancing..." : "✨ Enhance with AI"}
+              </button>
+              <button
+                type="button"
+                onClick={downloadPDF}
+                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-indigo-500"
+              >
+                Download PDF
+              </button>
+            </div>
 
-          <div className="flex h-full items-start justify-center overflow-auto">
-            <div
-              id="resume-preview"
-              className="aspect-[1/1.414] w-full max-w-[640px] bg-white p-8 text-[#000000] shadow-2xl"
-              style={{ backgroundColor: "#ffffff", color: "#000000" }}
-            >
-              <header>
-                <h4 className="text-3xl font-bold tracking-tight text-[#000000]">
-                  {resumeData.fullName || "Your Name"}
-                </h4>
-                <p className="mt-1 text-sm text-[#334155]">
-                  {resumeData.email || "your.email@example.com"}
-                  {resumeData.phone ? ` | ${resumeData.phone}` : ""}
-                </p>
-                <p className="mt-1 text-xs text-[#475569]">
-                  {resumeData.address || "City, State, Country"}
-                </p>
-                <p className="mt-1 text-xs text-[#475569]">
-                  {resumeData.linkedin || "linkedin.com/in/username"}
-                  {resumeData.github ? ` | ${resumeData.github}` : ""}
-                </p>
-                {codingProfileItems.length > 0 ? (
+            {enhanceError ? (
+              <p className="mb-3 text-right text-xs text-rose-200">{enhanceError}</p>
+            ) : null}
+
+            <div className="flex h-full items-start justify-center overflow-auto">
+              <div
+                id="resume-preview"
+                className="aspect-[1/1.414] w-full max-w-[640px] bg-white p-8 text-[#000000] shadow-2xl"
+                style={{ backgroundColor: "#ffffff", color: "#000000" }}
+              >
+                <header>
+                  <h4 className="text-3xl font-bold tracking-tight text-[#000000]">
+                    {resumeData.fullName || "Your Name"}
+                  </h4>
+                  <p className="mt-1 text-sm text-[#334155]">
+                    {resumeData.email || "your.email@example.com"}
+                    {resumeData.phone ? ` | ${resumeData.phone}` : ""}
+                  </p>
                   <p className="mt-1 text-xs text-[#475569]">
-                    Coding Profiles: {codingProfileItems.join(" | ")}
+                    {resumeData.address || "City, State, Country"}
                   </p>
-                ) : null}
-              </header>
-
-              <section className="mt-8">
-                <h5 className={sectionTitleClassName}>
-                  Professional Summary
-                </h5>
-                <p className="mt-2 text-sm leading-relaxed text-[#1e293b]">
-                  {resumeData.summary ||
-                    "Your summary will appear here in real time as you type on the left."}
-                </p>
-              </section>
-
-              <section className="mt-6">
-                <h5 className={sectionTitleClassName}>Skills</h5>
-                {skillItems.length > 0 ? (
-                  <ul className="mt-2 list-disc pl-5 text-sm text-[#1e293b]">
-                    {skillItems.map((skill) => (
-                      <li key={skill}>{skill}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="mt-2 text-sm text-[#334155]">
-                    Add comma-separated skills in the editor.
+                  <p className="mt-1 text-xs text-[#475569]">
+                    {resumeData.linkedin || "linkedin.com/in/username"}
+                    {resumeData.github ? ` | ${resumeData.github}` : ""}
                   </p>
-                )}
-              </section>
+                  {codingProfileItems.length > 0 ? (
+                    <p className="mt-1 text-xs text-[#475569]">
+                      Coding Profiles: {codingProfileItems.join(" | ")}
+                    </p>
+                  ) : null}
+                </header>
 
-              <section className="mt-6">
-                <h5 className={sectionTitleClassName}>Education</h5>
-                <div className="mt-2 space-y-3">
-                  {resumeData.education.map((item) => (
-                    <article key={item.id}>
-                      <p className="text-sm font-semibold text-[#0f172a]">
-                        {item.school || "School Name"}
-                      </p>
-                      <p className="text-sm text-[#1e293b]">
-                        {item.degree || "Degree"}
-                      </p>
-                      <p className="text-xs text-[#475569]">
-                        {item.year || "Year"}
-                        {item.grade ? ` | ${item.grade}` : ""}
-                      </p>
-                    </article>
-                  ))}
-                </div>
-              </section>
+                <section className="mt-8">
+                  <h5 className={sectionTitleClassName}>
+                    Professional Summary
+                  </h5>
+                  <p className="mt-2 text-sm leading-relaxed text-[#1e293b]">
+                    {resumeData.summary ||
+                      "Your summary will appear here in real time as you type on the left."}
+                  </p>
+                </section>
 
-              <section className="mt-6">
-                <h5 className={sectionTitleClassName}>Experience</h5>
-                <div className="mt-2 space-y-4">
-                  {resumeData.experience.map((item) => (
-                    <article key={item.id}>
-                      <div className="flex flex-wrap items-center justify-between gap-2">
+                <section className="mt-6">
+                  <h5 className={sectionTitleClassName}>Skills</h5>
+                  {skillItems.length > 0 ? (
+                    <ul className="mt-2 list-disc pl-5 text-sm text-[#1e293b]">
+                      {skillItems.map((skill) => (
+                        <li key={skill}>{skill}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="mt-2 text-sm text-[#334155]">
+                      Add comma-separated skills in the editor.
+                    </p>
+                  )}
+                </section>
+
+                <section className="mt-6">
+                  <h5 className={sectionTitleClassName}>Education</h5>
+                  <div className="mt-2 space-y-3">
+                    {resumeData.education.map((item) => (
+                      <article key={item.id}>
                         <p className="text-sm font-semibold text-[#0f172a]">
-                          {item.role || "Role"}
+                          {item.school || "School Name"}
+                        </p>
+                        <p className="text-sm text-[#1e293b]">
+                          {item.degree || "Degree"}
                         </p>
                         <p className="text-xs text-[#475569]">
-                          {item.duration || "Duration"}
+                          {item.year || "Year"}
+                          {item.grade ? ` | ${item.grade}` : ""}
                         </p>
-                      </div>
-                      <p className="text-sm text-[#1e293b]">
-                        {item.company || "Company"}
-                      </p>
-                      <p className="mt-1 text-sm leading-relaxed text-[#334155]">
-                        {item.description || "Describe your impact and responsibilities."}
-                      </p>
-                    </article>
-                  ))}
-                </div>
-              </section>
+                      </article>
+                    ))}
+                  </div>
+                </section>
 
-              <section className="mt-6">
-                <h5 className={sectionTitleClassName}>Projects</h5>
-                <div className="mt-2 space-y-4">
-                  {resumeData.projects.map((item) => (
-                    <article key={item.id}>
-                      <p className="text-sm font-semibold text-[#0f172a]">
-                        {item.title || "Project Title"}
-                      </p>
-                      {item.link ? (
-                        <p className="text-xs text-[#475569]">{item.link}</p>
-                      ) : null}
-                      <p className="mt-1 text-sm leading-relaxed text-[#334155]">
-                        {item.description || "Summarize what you built and the result."}
-                      </p>
-                    </article>
-                  ))}
-                </div>
-              </section>
+                <section className="mt-6">
+                  <h5 className={sectionTitleClassName}>Experience</h5>
+                  <div className="mt-2 space-y-4">
+                    {resumeData.experience.map((item) => (
+                      <article key={item.id}>
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <p className="text-sm font-semibold text-[#0f172a]">
+                            {item.role || "Role"}
+                          </p>
+                          <p className="text-xs text-[#475569]">
+                            {item.duration || "Duration"}
+                          </p>
+                        </div>
+                        <p className="text-sm text-[#1e293b]">
+                          {item.company || "Company"}
+                        </p>
+                        <p className="mt-1 text-sm leading-relaxed text-[#334155]">
+                          {item.description || "Describe your impact and responsibilities."}
+                        </p>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="mt-6">
+                  <h5 className={sectionTitleClassName}>Projects</h5>
+                  <div className="mt-2 space-y-4">
+                    {resumeData.projects.map((item) => (
+                      <article key={item.id}>
+                        <p className="text-sm font-semibold text-[#0f172a]">
+                          {item.title || "Project Title"}
+                        </p>
+                        {item.link ? (
+                          <p className="text-xs text-[#475569]">{item.link}</p>
+                        ) : null}
+                        <p className="mt-1 text-sm leading-relaxed text-[#334155]">
+                          {item.description || "Summarize what you built and the result."}
+                        </p>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+
+        {isDiffModalOpen && pendingEnhancedData ? (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+            <div className="flex max-h-[85vh] w-full max-w-5xl flex-col rounded-xl bg-white dark:bg-slate-900">
+              <header className="border-b border-slate-200 px-6 py-4 dark:border-slate-700">
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                  Review AI Enhancements
+                </h3>
+              </header>
+
+              <div className="grid grid-cols-2 gap-6 overflow-y-auto p-6">
+                <section>
+                  <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                    Original
+                  </h4>
+
+                  <div className="space-y-4 rounded-lg border border-slate-200 p-4 dark:border-slate-700">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                        Summary
+                      </p>
+                      <p className="mt-1 text-sm text-slate-800 dark:text-slate-200">
+                        {resumeData.summary || "No summary provided yet."}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                        Experience Descriptions
+                      </p>
+                      <div className="mt-2 space-y-3">
+                        {resumeData.experience.map((item) => (
+                          <article key={item.id} className="rounded-md bg-slate-100 p-3 dark:bg-slate-800">
+                            <p className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                              {item.role || "Role"} {item.company ? `at ${item.company}` : ""}
+                            </p>
+                            <p className="mt-1 text-sm text-slate-800 dark:text-slate-200">
+                              {item.description || "No description provided yet."}
+                            </p>
+                          </article>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <section>
+                  <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                    AI Enhanced
+                  </h4>
+
+                  <div className="space-y-4 rounded-lg border border-indigo-200 p-4 dark:border-indigo-700">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                        Summary
+                      </p>
+                      <p className="mt-1 text-sm text-slate-800 dark:text-slate-200">
+                        {pendingEnhancedData.summary || "No summary generated."}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                        Experience Descriptions
+                      </p>
+                      <div className="mt-2 space-y-3">
+                        {pendingEnhancedData.experience.map((item) => (
+                          <article key={item.id} className="rounded-md bg-indigo-50 p-3 dark:bg-slate-800">
+                            <p className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                              {item.role || "Role"} {item.company ? `at ${item.company}` : ""}
+                            </p>
+                            <p className="mt-1 text-sm text-slate-800 dark:text-slate-200">
+                              {item.description || "No description generated."}
+                            </p>
+                          </article>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              <footer className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-slate-200 bg-white px-6 py-4 dark:border-slate-700 dark:bg-slate-900">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsDiffModalOpen(false);
+                    setPendingEnhancedData(null);
+                  }}
+                  className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
+                >
+                  Discard Changes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResumeData(pendingEnhancedData);
+                    setIsDiffModalOpen(false);
+                    setPendingEnhancedData(null);
+                  }}
+                  className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-indigo-500"
+                >
+                  Accept & Apply
+                </button>
+              </footer>
+            </div>
+          </div>
+        ) : null}
+      </section>
+    </>
   );
 }
