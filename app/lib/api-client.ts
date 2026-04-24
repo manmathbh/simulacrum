@@ -3,6 +3,7 @@ import {
   DashboardTurnRequest,
   DashboardTurnResponse,
 } from "./dashboard-contracts";
+import type { ResumeData } from "./resume-builder-contracts";
 
 export async function postDashboardTurn(
   payload: DashboardTurnRequest,
@@ -42,4 +43,23 @@ export async function analyzeResume(
   }
 
   return (await response.json()) as AtsResumeAnalysis;
+}
+
+export async function enhanceResumeData(data: ResumeData): Promise<ResumeData> {
+  const response = await fetch("/api/enhance-resume", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Failed to enhance resume (${response.status} ${response.statusText}): ${errorText}`,
+    );
+  }
+
+  return (await response.json()) as ResumeData;
 }

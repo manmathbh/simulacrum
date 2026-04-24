@@ -4,6 +4,8 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { useState } from "react";
 
+import { enhanceResumeData } from "../lib/api-client";
+
 type ResumeEducation = {
   id: string;
   school: string;
@@ -75,6 +77,8 @@ const sectionTitleClassName =
 
 export function ResumeBuilder() {
   const [resumeData, setResumeData] = useState<ResumeData>(defaultResumeData);
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [enhanceError, setEnhanceError] = useState<string | null>(null);
 
   const updateField = (
     field: keyof Omit<
@@ -227,6 +231,21 @@ export function ResumeBuilder() {
 
     pdf.addImage(imageData, "PNG", 0, 0, pageWidth, pageHeight);
     pdf.save("resume.pdf");
+  };
+
+  const handleEnhanceWithAI = async () => {
+    setIsEnhancing(true);
+    setEnhanceError(null);
+
+    try {
+      const enhancedData = await enhanceResumeData(resumeData);
+      setResumeData(enhancedData);
+    } catch (error) {
+      console.error("Failed to enhance resume:", error);
+      setEnhanceError("Could not enhance resume right now. Please try again.");
+    } finally {
+      setIsEnhancing(false);
+    }
   };
 
   const skillItems = resumeData.skills
@@ -554,7 +573,15 @@ export function ResumeBuilder() {
         </div>
 
         <div className="rounded-2xl bg-slate-300/30 p-5 backdrop-blur-sm">
-          <div className="mb-4 flex items-center justify-end">
+          <div className="mb-4 flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={handleEnhanceWithAI}
+              disabled={isEnhancing}
+              className="rounded-lg bg-fuchsia-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-fuchsia-500 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isEnhancing ? "Enhancing..." : "✨ Enhance with AI"}
+            </button>
             <button
               type="button"
               onClick={downloadPDF}
@@ -563,6 +590,10 @@ export function ResumeBuilder() {
               Download PDF
             </button>
           </div>
+
+          {enhanceError ? (
+            <p className="mb-3 text-right text-xs text-rose-200">{enhanceError}</p>
+          ) : null}
 
           <div className="flex h-full items-start justify-center overflow-auto">
             <div
