@@ -77,6 +77,7 @@ const sectionTitleClassName =
 
 export function ResumeBuilder() {
   const [resumeData, setResumeData] = useState<ResumeData>(defaultResumeData);
+  const [targetJD, setTargetJD] = useState("");
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [enhanceError, setEnhanceError] = useState<string | null>(null);
   const [pendingEnhancedData, setPendingEnhancedData] =
@@ -241,7 +242,10 @@ export function ResumeBuilder() {
     setEnhanceError(null);
 
     try {
-      const enhancedData = await enhanceResumeData(resumeData);
+      const enhancedData = await enhanceResumeData(
+        resumeData,
+        targetJD.trim() || undefined,
+      );
       setPendingEnhancedData(enhancedData);
       setIsDiffModalOpen(true);
     } catch (error) {
@@ -381,6 +385,23 @@ export function ResumeBuilder() {
                 value={resumeData.skills}
                 onChange={updateField("skills")}
                 placeholder="React, TypeScript, Node.js, SQL"
+                className={editorInputClassName}
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="resume-target-jd"
+                className="block text-sm font-medium text-slate-200"
+              >
+                Target Job Description (Optional for Tailoring)
+              </label>
+              <textarea
+                id="resume-target-jd"
+                value={targetJD}
+                onChange={(event) => setTargetJD(event.target.value)}
+                rows={6}
+                placeholder="Paste a job description to tailor AI enhancements for role-specific keywords and requirements..."
                 className={editorInputClassName}
               />
             </div>

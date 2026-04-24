@@ -69,13 +69,17 @@ function extractJsonObject(raw: string): string {
 }
 
 export async function POST(request: Request) {
-  const body = (await request.json()) as Partial<ResumeData>;
+  const body = (await request.json()) as Partial<ResumeData> & {
+    targetJD?: string;
+  };
 
   if (!body || typeof body !== "object") {
     return NextResponse.json({ error: "ResumeData payload is required." }, { status: 400 });
   }
 
-  const resumeData = body as ResumeData;
+  const { targetJD: rawTargetJD, ...resumePayload } = body;
+  const targetJD = cleanString(rawTargetJD);
+  const resumeData = resumePayload as ResumeData;
 
   if (!resumeData.fullName && !resumeData.summary) {
     return NextResponse.json(
@@ -96,19 +100,28 @@ export async function POST(request: Request) {
 
   for (const model of openRouterModelCandidates) {
     try {
+      const systemPrompt = targetJD
+        ? "You are an expert resume tailor, technical recruiter, and ATS specialist. Aggressively rewrite the candidate's summary, each experience.description, and each projects.description so they are tailored to the provided target job description. Naturally embed relevant JD keywords, required skills, tools, and responsibilities while preserving the candidate's original truth, chronology, and metrics. Do not fabricate employers, roles, technologies, dates, or outcomes. Keep content professional, high-impact, concise, and ATS-optimized. Preserve all original IDs and structural shape. Return ONLY valid raw JSON matching the exact same ResumeData schema keys."
+        : "You are an expert technical recruiter and resume writer. Rewrite and improve the candidate's summary, each experience.description, and each projects.description to be highly professional, impactful, ATS-optimized, and concise. Use strong action verbs and metric-driven statements where possible. Preserve all original IDs and structural shape. Return ONLY valid raw JSON matching the exact same ResumeData schema keys.";
+
+      const userPrompt = targetJD
+        ? `Tailor this ResumeData object specifically to the target job description and return the same JSON structure only.\n\nTarget Job Description:\n${targetJD.slice(0, 12000)}\n\nResumeData:\n${JSON.stringify(
+            resumeData,
+          )}`
+        : `Enhance this ResumeData object and return the same JSON structure only:\n\n${JSON.stringify(
+            resumeData,
+          )}`;
+
       const completion = await openai.chat.completions.create({
         model,
         messages: [
           {
             role: "system",
-            content:
-              "You are an expert technical recruiter and resume writer. Rewrite and improve the candidate's summary, each experience.description, and each projects.description to be highly professional, impactful, ATS-optimized, and concise. Use strong action verbs and metric-driven statements where possible. Preserve all original IDs and structural shape. Return ONLY valid raw JSON matching the exact same ResumeData schema keys.",
+            content: systemPrompt,
           },
           {
             role: "user",
-            content: `Enhance this ResumeData object and return the same JSON structure only:\n\n${JSON.stringify(
-              resumeData,
-            )}`,
+            content: userPrompt,
           },
         ],
         temperature: 0.3,

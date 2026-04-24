@@ -45,13 +45,16 @@ export async function analyzeResume(
   return (await response.json()) as AtsResumeAnalysis;
 }
 
-export async function enhanceResumeData(data: ResumeData): Promise<ResumeData> {
+export async function enhanceResumeData(
+  data: ResumeData,
+  targetJD?: string,
+): Promise<ResumeData> {
   const response = await fetch("/api/enhance-resume", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify({ ...data, targetJD }),
   });
 
   if (!response.ok) {
