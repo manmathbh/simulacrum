@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ✨ Simulacrum: AI-Powered Career Suite
 
-## Getting Started
+[![Live Demo](https://img.shields.io/badge/Live_Demo-simulacrum--xi.manmath.app-blue?style=for-the-badge)](https://simulacrum-xi.manmath.app)
 
-First, run the development server:
+Simulacrum is a production-grade, full-stack SaaS application designed to help job seekers master their next tech interview. It combines a real-time AI mock interview engine with an intelligent, ATS-friendly resume builder.
 
-```bash
+## 🚀 Features
+
+* **🎙️ AI Mock Interviews:** Practice with real-time AI coaching, scenario-based questions, and live communication feedback.
+* **📄 Dynamic Resume Builder:** A WYSIWYG split-screen editor that generates live, ATS-compliant PDF resumes.
+* **🎯 AI Resume Tailoring (JD Match):** Input a target Job Description, and the AI will dynamically rewrite your experience bullet points to highlight the exact skills recruiters are looking for.
+* **🔒 Secure Authentication:** Protected user sessions using Google OAuth.
+* **📊 Analytics Engine:** Local storage-based tracking for interview confidence, clarity, and grammar trends over time.
+
+## 💻 Tech Stack
+
+* **Framework:** [Next.js](https://nextjs.org/) (App Router)
+* **Styling:** [Tailwind CSS](https://tailwindcss.com/) (Dark Mode Glassmorphism UI)
+* **AI Integration:** [OpenRouter API](https://openrouter.ai/) 
+* **Authentication:** [NextAuth.js](https://next-auth.js.org/) (Google Provider)
+* **Deployment:** [Vercel](https://vercel.com/)
+
+## 🛠️ Getting Started (Local Development)
+
+If you'd like to run this project locally, follow these steps:
+
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/manmathbh/simulacrum.git](https://github.com/manmathbh/simulacrum.git)
+   cd simulacrum
+
+2. Install dependencies:
+
+Bash
+npm install
+3. Set up environment variables:
+Create a .env.local file in the root directory and add your keys:
+
+Code snippet
+OPENROUTER_API_KEY=your_openrouter_key
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_nextauth_secret
+GOOGLE_CLIENT_ID=your_google_id
+GOOGLE_CLIENT_SECRET=your_google_secret
+
+4. Run the development server:
+
+Bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Open http://localhost:3000 in your browser.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🚧 Work in Progress
+Simulacrum is currently live, but I am still actively building and adding amazing new features! Upcoming Roadmap:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+[ ] LinkedIn Bio Generator based on Resume Data
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+[ ] AI-driven cover letter generation
 
-## Learn More
+[ ] Enhanced analytics dashboard for interview progress
 
-To learn more about Next.js, take a look at the following resources:
+[ ] Persistent cloud storage for multiple resume versions
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+💬 Feedback & Contributions
+I am actively looking for feedback to improve the platform! If you have feature requests, spot a bug, or have suggestions on the UI/UX, please open an issue or reach out to me.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+If you are a developer and want to contribute, feel free to fork the repository and submit a pull request!
 
-## Deploy on Vercel
+Built by Manmath Hatte
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+***
