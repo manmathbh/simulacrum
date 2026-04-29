@@ -14,11 +14,11 @@ Simulacrum is a production-grade, full-stack SaaS application designed to help j
 
 ##  Tech Stack
 
-* **Framework:** [Next.js](https://nextjs.org/) (App Router)
-* **Styling:** [Tailwind CSS](https://tailwindcss.com/) (Dark Mode Glassmorphism UI)
-* **AI Integration:** [OpenRouter API](https://openrouter.ai/) 
-* **Authentication:** [NextAuth.js](https://next-auth.js.org/) (Google Provider)
-* **Deployment:** [Vercel](https://vercel.com/)
+* ** Framework: ** [Next.js](https://nextjs.org/) (App Router)
+* ** Styling: ** [Tailwind CSS](https://tailwindcss.com/) (Dark Mode Glassmorphism UI)
+* ** AI Integration: ** [OpenRouter API](https://openrouter.ai/) 
+* ** Authentication: ** [NextAuth.js](https://next-auth.js.org/) (Google Provider)
+* ** Deployment: ** [Vercel](https://vercel.com/)
 
 ##  Getting Started (Local Development)
 
