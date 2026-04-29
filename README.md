@@ -6,19 +6,19 @@ Simulacrum is a production-grade, full-stack SaaS application designed to help j
 
 ##  Features
 
-* ** AI Mock Interviews:** Practice with real-time AI coaching, scenario-based questions, and live communication feedback.
-* ** Dynamic Resume Builder:** A WYSIWYG split-screen editor that generates live, ATS-compliant PDF resumes.
-* ** AI Resume Tailoring (JD Match):** Input a target Job Description, and the AI will dynamically rewrite your experience bullet points to highlight the exact skills recruiters are looking for.
-* ** Secure Authentication:** Protected user sessions using Google OAuth.
-* ** Analytics Engine:** Local storage-based tracking for interview confidence, clarity, and grammar trends over time.
+* **AI Mock Interviews:** Practice with real-time AI coaching, scenario-based questions, and live communication feedback.
+* **Dynamic Resume Builder:** A WYSIWYG split-screen editor that generates live, ATS-compliant PDF resumes.
+* **AI Resume Tailoring (JD Match):** Input a target Job Description, and the AI will dynamically rewrite your experience bullet points to highlight the exact skills recruiters are looking for.
+* **Secure Authentication:** Protected user sessions using Google OAuth.
+* **Analytics Engine:** Local storage-based tracking for interview confidence, clarity, and grammar trends over time.
 
 ##  Tech Stack
 
-* ** Framework: ** [Next.js](https://nextjs.org/) (App Router)
-* ** Styling: ** [Tailwind CSS](https://tailwindcss.com/) (Dark Mode Glassmorphism UI)
-* ** AI Integration: ** [OpenRouter API](https://openrouter.ai/) 
-* ** Authentication: ** [NextAuth.js](https://next-auth.js.org/) (Google Provider)
-* ** Deployment: ** [Vercel](https://vercel.com/)
+* **Framework:** [Next.js](https://nextjs.org/) (App Router)
+* **Styling:** [Tailwind CSS](https://tailwindcss.com/) (Dark Mode Glassmorphism UI)
+* **AI Integration:** [OpenRouter API](https://openrouter.ai/) 
+* **Authentication:** [NextAuth.js](https://next-auth.js.org/) (Google Provider)
+* **Deployment:** [Vercel](https://vercel.com/)
 
 ##  Getting Started (Local Development)
 
