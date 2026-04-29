@@ -1,6 +1,6 @@
 # ✨ Simulacrum: AI-Powered Career Suite
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-simulacrum--xi.manmath.app-blue?style=for-the-badge)](https://simulacrum-xi.manmath.app)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-simulacrum--xi.vercel.app-blue?style=for-the-badge)](https://simulacrum-xi.vercel.app)
 
 Simulacrum is a production-grade, full-stack SaaS application designed to help job seekers master their next tech interview. It combines a real-time AI mock interview engine with an intelligent, ATS-friendly resume builder.
 
@@ -42,7 +42,6 @@ NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=your_nextauth_secret
 GOOGLE_CLIENT_ID=your_google_id
 GOOGLE_CLIENT_SECRET=your_google_secret
-
 4. Run the development server:
 
 Bash
